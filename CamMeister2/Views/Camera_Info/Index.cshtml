@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Camera_Info>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Registered Camera Info</h1>
+
+<table class="table table-bordered" style=" width:100%">
+    <thead>
+        <tr>
+            <th>
+                Camera Name
+            </th>
+            <th>
+                Location
+            </th>
+            <th>
+                CamDescription
+            </th>
+            <th>
+                Camera Registered On
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model)
+        {
+            <tr>
+                <td width="20%">
+                    @obj.Name
+                </td>
+                <td width="20%">
+                    @obj.Location
+                </td>
+                <td width="45%">
+                    @obj.CamDescription
+                </td>
+                <td width="15%">
+                    @obj.CreatedOn
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
