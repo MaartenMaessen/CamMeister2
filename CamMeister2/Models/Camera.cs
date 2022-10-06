@@ -2,7 +2,7 @@
 
 namespace CamMeister2.Models
 {
-    public class Camera_Info
+    public class Camera
     {
         [Key]
         public int Id { get; set; }
