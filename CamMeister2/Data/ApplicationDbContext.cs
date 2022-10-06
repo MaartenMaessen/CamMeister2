@@ -11,6 +11,6 @@ namespace CamMeister2.Data
         {
         }
 
-        public DbSet<Camera_Info> Camera_Info { get; set; }
+        public DbSet<Camera> Cameras { get; set; }
     }
 }
