@@ -8,24 +8,36 @@ using Microsoft.EntityFrameworkCore;
 using CamMeister2.Data;
 using CamMeister2.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CamMeister2.Controllers
 {
     public class CamerasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        ApplicationUser? currentApplicationUser;
 
-        public CamerasController(ApplicationDbContext context)
+        public CamerasController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [Authorize]
         // GET: Cameras
         public async Task<IActionResult> Index()
         {
-              return View(await _context.Cameras.ToListAsync());
+            currentApplicationUser = await _userManager.GetUserAsync(User);
+            var applicationDbContext = _context.Cameras.Where(c => c.ApplicationUser == currentApplicationUser);
+            return View(await applicationDbContext.ToListAsync());
         }
+    
 
         [Authorize]
         // GET: Cameras/Details/5
@@ -59,10 +71,24 @@ namespace CamMeister2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Location,CamDescription,CreatedOn")] Camera camera)
+        public async Task<IActionResult> Create([Bind("Name,Location,CamDescription,CreatedOn, CameraPhoto")] Camera camera)
         {
+            currentApplicationUser = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
+                if (camera.CameraPhoto != null)
+                {
+                    string folder = "E:\\School & Code\\CamMeister2\\CamMeister2\\wwwroot\\CameraPictures\\Pictures\\";
+                    folder += Guid.NewGuid().ToString() + "_" + camera.CameraPhoto.FileName;
+                    string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+                    await camera.CameraPhoto.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                    camera.CameraPhotoURL = "\\" + folder;
+                }
+
+                camera.ApplicationUserId=currentApplicationUser.Id;
+                camera.ApplicationUser = currentApplicationUser;
+                currentApplicationUser.Points += 10;
+                _context.Update(currentApplicationUser);
                 _context.Add(camera);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -166,5 +192,8 @@ namespace CamMeister2.Controllers
         {
           return _context.Cameras.Any(e => e.Id == id);
         }
+
+
+
     }
 }
