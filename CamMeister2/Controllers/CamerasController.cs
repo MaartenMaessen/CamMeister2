@@ -78,7 +78,7 @@ namespace CamMeister2.Controllers
             {
                 if (camera.CameraPhoto != null)
                 {
-                    string folder = "E:\\School & Code\\CamMeister2\\CamMeister2\\wwwroot\\CameraPictures\\Pictures\\";
+                    string folder = "CameraPictures\\Pictures\\";
                     folder += Guid.NewGuid().ToString() + "_" + camera.CameraPhoto.FileName;
                     string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
                     await camera.CameraPhoto.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
